@@ -57,6 +57,8 @@ Handle<Value> Montage(const Arguments& args) {
 Handle<Value> Convert(const Arguments& args) {
   HandleScope scope;
 
+  Magick::InitializeMagick(NULL);
+
   Handle<Object> opts;
   Local<Value> src;
 

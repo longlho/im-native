@@ -1,7 +1,7 @@
 var fs = require('fs')
   , im = require('../index')
   , execFile = require('child_process').execFile
-  , img = __dirname + '/fixtures/1469.png'
+  , img = __dirname + '/../test/fixtures/src/corgi-src.jpg'
   , src = fs.readFileSync(img);
 
 console.time('Native convert 100 times');
@@ -23,7 +23,7 @@ for (i = 0; i < 100; i++) {
     }
     done--;
     if (!done) {
-      console.timeEnd('spawn convert 100 times');      
+      console.timeEnd('spawn convert 100 times');
     }
   });
 }
