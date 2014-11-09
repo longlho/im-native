@@ -1,7 +1,9 @@
+'use strict';
 var im = require('../index')
   , http = require('http')
   , request = require('request')
-  , execFile = require('child_process').execFile;
+  , execFile = require('child_process').execFile
+  , done = 100;
 
 // console.time('Spawn 100 IM processes');
 // var done = 100;
@@ -22,74 +24,48 @@ var im = require('../index')
 //   })
 // }
 
-
-
-console.time('Async img req + native convert 100 times');
-var done = 100;
-for (var i = 0; i < 100; i++) {
+function nativeConvert () {
   request({
     url: "http://radioedit.iheart.com/service/img/nop()/assets/images/1469.png",
     timeout: 10000,
     encoding: null
   }, function (err, resp, data) {
-    im.convert({
-      src: data,
-      width: 100,
-      height: 100,
-      ops: 'fill',
-      format: 'WEBP'
-    });
-    done--;
-    if (!done) {
-      console.timeEnd('Async img req + native convert 100 times');
-      testRawIM();
-    }
-  })
-}
-
-
-function testRawIM() {
-  request({
-    url: "http://radioedit.iheart.com/service/img/nop()/assets/images/1469.png",
-    timeout: 10000,
-    encoding: null
-  }, function (err, resp, data) {
-    console.time('Raw IM power');
-    for (var i = 0; i < 100; i++) {
-      im.convert({
-        src: data,
-        width: 100,
-        height: 100,
-        ops: 'fill',
-        format: 'WEBP'
-      });
-    }
-    
-    console.timeEnd('Raw IM power');
-    testAsyncReqExec();
-    
-  });
-  
-}
-
-function testAsyncReqExec() {
-  console.time('Async img req + spawn convert 100 times');
-  var done = 100;
-  for (var i = 0; i < 100; i++) {
-    request({
-      url: "http://radioedit.iheart.com/service/img/nop()/assets/images/1469.png",
-      timeout: 10000,
-      encoding: null
-    }, function (err, resp, data) {
-      var ps = execFile("convert", ["-", "-resize", "100x100^", '-background', 'transparent', '-gravity', 'North', '-extent', '100x100', "webp:-"], {
-        timeout: 1000
-      }, function (err, stdout, stderr) {
+    im.convert(
+      data,
+      ['resize', '100x100^', 'extent', '100x100', 'NorthGravity', 'format', 'WEBP'],
+      function () {
         done--;
         if (!done) {
-          console.timeEnd('Async img req + spawn convert 100 times');
+          console.timeEnd('Async img req + native convert 1000 times');
+          testAsyncReqExec();
         }
-      });
-      ps.stdin.end(data);
-    })
+      }
+    );
+  });
+}
+
+function spawnConvert () {
+  execFile("convert", ["http://radioedit.iheart.com/service/img/nop()/assets/images/1469.png", "-resize", "100x100^", '-background', 'transparent', '-gravity', 'North', '-extent', '100x100', "webp:-"], {
+    timeout: 1000
+  }, function () {
+    done--;
+    if (!done) {
+      console.timeEnd('Async img req + spawn convert 1000 times');
+    }
+  });
+}
+
+
+console.time('Async img req + native convert 1000 times');
+for (var i = 0; i < 1000; i++) {
+  nativeConvert();
+}
+
+
+function testAsyncReqExec() {
+  console.time('Async img req + spawn convert 1000 times');
+  done = 100;
+  for (var i = 0; i < 1000; i++) {
+    spawnConvert();
   }
 }
