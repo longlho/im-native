@@ -2,9 +2,15 @@
   "targets": [
     {
       "target_name": "im-native",
-      "sources": [ "src/im.cc" ],
+      "sources": [
+        "src/im.cc",
+        "src/convert.cc"
+      ],
       "cflags!": [ '-fno-exceptions' ],
       "cflags_cc!": [ '-fno-exceptions' ],
+      "include_dirs": [
+         "<!(node -e \"require('nan')\")"
+      ],
       "conditions": [
         [
           'OS=="mac"',

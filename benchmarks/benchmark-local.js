@@ -1,16 +1,27 @@
+'use strict';
 var fs = require('fs')
   , im = require('../index')
   , execFile = require('child_process').execFile
   , img = __dirname + '/../test/fixtures/src/corgi-src.jpg'
   , src = fs.readFileSync(img);
 
+var nativeDone = 100;
 console.time('Native convert 100 times');
 for (var i = 0; i < 100; i++) {
-  im.convert({
-    src: src
-  });
+  im.convert(
+    src,
+    ['resize', '100x100', 'gravity', 'NorthGravity', 'extent', '100x100', 'format', 'webp'],
+    function (err) {
+      if (err) {
+        return console.log(err);
+      }
+      nativeDone--;
+      if (!nativeDone) {
+        console.timeEnd('Native convert 100 times');
+      }
+    }
+  );
 }
-console.timeEnd('Native convert 100 times');
 
 console.time('spawn convert 100 times');
 var done = 100;
