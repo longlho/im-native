@@ -42,8 +42,9 @@
               '<!@(Magick++-config --ldflags --libs)',
             ],
             'cflags': [
-              '<!@(Magick++-config --cflags --cppflags)'
-            ],
+              '<!@(Magick++-config --cflags --cppflags)',
+              '-std=c++0x'
+            ]
           }
         ]
       ]
