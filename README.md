@@ -4,7 +4,7 @@ im-native
 [![Build Status](https://travis-ci.org/longlho/im-native.svg?branch=master)](https://travis-ci.org/longlho/im-native)
 
 
-Node ImageMagick Native module, essentially a rewrite of [node-imagemagick-native](https://github.com/mash/node-imagemagick-native). **Still in development**
+Native binding for Magick++. **Still in development**
 
 Quick usage:
 
@@ -27,10 +27,13 @@ Supported methods
 
 **NOTE**: Orders do matter
 
+- `['strip']`
+- `['interlace', '<interlaceType>']`
 - `['resize', '<width>x<height><flag>']`
 - `['extent', '<width>x<height', '<gravity>']`
 - `['format', '<JPG/PNG/WEBP>']`
 - `['quality', '<0 - 100>']`
+- `['filter', '<filter types>']`
 - `['blurSigma', '<blurSigma>']`
 
 TODO

@@ -6,33 +6,43 @@
 
 using namespace v8;
 
-static Magick::GravityType getGravityType(std::string gravity) {
-  if (gravity == "CenterGravity")
-    return Magick::CenterGravity;
-  else if (gravity == "EastGravity")
-    return Magick::EastGravity;
-  else if (gravity == "ForgetGravity")
-    return Magick::ForgetGravity;
-  else if (gravity == "NorthEastGravity")
-    return Magick::NorthEastGravity;
-  else if (gravity == "NorthGravity")
-    return Magick::NorthGravity;
-  else if (gravity == "NorthWestGravity")
-    return Magick::NorthWestGravity;
-  else if (gravity == "SouthEastGravity")
-    return Magick::SouthEastGravity;
-  else if (gravity == "SouthGravity")
-    return Magick::SouthGravity;
-  else if (gravity == "SouthWestGravity")
-    return Magick::SouthWestGravity;
-  else if (gravity == "WestGravity")
-    return Magick::WestGravity;
+static Magick::GravityType ToGravityType(std::string gravity) {
+  if (gravity == "Center")         return Magick::CenterGravity;
+  else if (gravity == "East")      return Magick::EastGravity;
+  else if (gravity == "Forget")    return Magick::ForgetGravity;
+  else if (gravity == "NorthEast") return Magick::NorthEastGravity;
+  else if (gravity == "North")     return Magick::NorthGravity;
+  else if (gravity == "NorthWest") return Magick::NorthWestGravity;
+  else if (gravity == "SouthEast") return Magick::SouthEastGravity;
+  else if (gravity == "South")     return Magick::SouthGravity;
+  else if (gravity == "SouthWest") return Magick::SouthWestGravity;
+  else if (gravity == "West")      return Magick::WestGravity;
   else {
     return Magick::ForgetGravity;
   }
 }
 
-static std::string toString(Handle<Value> str) {
+static Magick::FilterTypes ToFilterType(std::string filter) {
+  if (filter == "Point")          return Magick::PointFilter;
+  else if (filter == "Box")       return Magick::BoxFilter;
+  else if (filter == "Gaussian")  return Magick::GaussianFilter;
+  else if (filter == "Lagrange")  return Magick::LagrangeFilter;
+  else {
+    return Magick::UndefinedFilter;
+  }
+}
+
+static Magick::InterlaceType ToInterlaceType(std::string interlace) {
+  if (interlace == "Plane")           return Magick::PlaneInterlace;
+  else if (interlace == "No")         return Magick::NoInterlace;
+  else if (interlace == "Line")       return Magick::LineInterlace;
+  else if (interlace == "Partition")  return Magick::PartitionInterlace;
+  else {
+    return Magick::UndefinedInterlace;
+  }
+}
+
+static std::string ToString(Handle<Value> str) {
   return std::string(*NanUtf8String(str));
 }
 
@@ -55,7 +65,7 @@ public:
     opts_length = options->Length();
     opts = new std::string[opts_length];
     for (unsigned int i = 0; i < options->Length(); ++i) {
-      opts[i] = toString(options->Get(i));
+      opts[i] = ToString(options->Get(i));
     }
   }
 
@@ -76,40 +86,28 @@ public:
         image.read(srcBlob);
       }
 
-      // Strip everything, reduce size
-      image.strip();
-
-      // Interlace this sauce
-      image.interlaceType(Magick::InterlaceType::PlaneInterlace);
-
       for (unsigned int i = 0; i < opts_length; ++i) {
         method = opts[i];
-        arg = opts[++i];
-        // std::cout << "method: ";
-        // std::cout << method;
-        // std::cout << " - ";
-        // std::cout << arg;
-        // std::cout << "\n";
 
-        if (method == "quality") {
-          image.quality(std::stoi(arg));
-        } else if (method == "format") {
-          image.magick(arg);
-        } else if (method == "resize") {
-          image.resize(arg);
-        } else if (method == "extent") {
-          gravity = getGravityType(opts[i + 1]);
+        if (method == "strip")            image.strip();
+        else if (method == "interlace")   image.interlaceType(ToInterlaceType(opts[++i]));
+        else if (method == "quality")     image.quality(std::stoi(opts[++i]));
+        else if (method == "format")      image.magick(opts[++i]);
+        else if (method == "resize")      image.resize(opts[++i]);
+        else if (method == "scale")       image.scale(opts[++i]);
+        else if (method == "blurSigma")   image.blur(0, std::stoi(opts[++i]));
+        else if (method == "filter")      image.filterType(ToFilterType(opts[++i]));
+        else if (method == "extent") {
+          gravity = ToGravityType(opts[i + 2]);
           // If there's no gravity
           if (gravity == Magick::ForgetGravity) {
-            image.extent(arg, Magick::Color("transparent"));
+            image.extent(opts[++i], Magick::Color("transparent"));
           }
           // If there is
           else {
-            image.extent(arg, Magick::Color("transparent"), gravity);
+            image.extent(opts[++i], Magick::Color("transparent"), gravity);
             i++;
           }
-        } else if (method == "blurSigma") {
-          image.blur(0, std::stoi(arg));
         }
       }
     } catch (const std::exception &err) {
@@ -148,7 +146,7 @@ NAN_METHOD(Convert) {
   Handle<Array> opts =args[1].As<Array>();
 
   if (args[0]->IsString()) {
-    NanAsyncQueueWorker(new ConvertWorker(toString(args[0]), opts, callback));
+    NanAsyncQueueWorker(new ConvertWorker(ToString(args[0]), opts, callback));
   } else {
     NanAsyncQueueWorker(new ConvertWorker(args[0], opts, callback));
   }

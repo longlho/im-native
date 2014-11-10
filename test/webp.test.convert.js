@@ -46,11 +46,11 @@ describe('convert', function () {
     describe('fill', function () {
       describe('format WEBP', function () {
         it('should be able to resize to 100x100 w/ aspect fill', function (done) {
-          convert('corgi-src.jpg', 'convert-buffer-fill-100.webp', ['format', 'WEBP', 'resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
+          convert('corgi-src.jpg', 'convert-buffer-fill-100.webp', ['format', 'WEBP', 'resize', '100x100^', 'extent', '100x100', 'Center'], done);
         });
 
         it('should be able to resize to 100x100 w/ aspect fill w/ transparency', function (done) {
-          convert('google.png', 'convert-buffer-fill-transparent-100.webp', ['format', 'WEBP', 'resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
+          convert('google.png', 'convert-buffer-fill-transparent-100.webp', ['format', 'WEBP', 'resize', '100x100^', 'extent', '100x100', 'Center'], done);
         });
       });
     });

@@ -3,7 +3,7 @@
     {
       "target_name": "im-native",
       "sources": [
-        "src/im.cc",
+        "src/main.cc",
         "src/convert.cc"
       ],
       "cflags!": [ '-fno-exceptions' ],

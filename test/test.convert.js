@@ -52,20 +52,20 @@ describe('convert', function () {
       describe('format PNG', function () {
 
         it('should be able to resize to 100x100 w/ aspect fill format PNG', function (done) {
-          convert('corgi-src.jpg', 'convert-buffer-fill-100.png', ['format', 'PNG', 'resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
+          convert('corgi-src.jpg', 'convert-buffer-fill-100.png', ['format', 'PNG', 'resize', '100x100^', 'extent', '100x100', 'Center'], done);
         });
 
         it('should be able to resize to 100x100 w/ aspect fill w/ transparency', function (done) {
-          convert('google.png', 'convert-buffer-fill-google-transparent-100.png', ['format', 'PNG', 'resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
+          convert('google.png', 'convert-buffer-fill-google-transparent-100.png', ['format', 'PNG', 'resize', '100x100^', 'extent', '100x100', 'Center'], done);
         });
       });
 
       it('should be able to resize to 100x100 w/ aspect fill w/o format', function (done) {
-        convert('corgi-src.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
+        convert('corgi-src.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'Center'], done);
       });
 
       it('should emit error if buffer is invalid', function (done) {
-        convert('bad.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done, true);
+        convert('bad.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'Center'], done, true);
       });
 
     });
@@ -93,7 +93,7 @@ describe('convert', function () {
     describe('blur', function () {
       describe('format jpg', function () {
         it('should be able to blur by 20 w/ format jpg', function (done) {
-          convert('corgi-src.jpg', 'convert-buffer-blur.jpg', ['blurSigma', 20, 'resize', '100x100^', 'extent', '100x100', 'CenterGravity', 'format', 'JPG'], done);
+          convert('corgi-src.jpg', 'convert-buffer-blur.jpg', ['blurSigma', 20, 'resize', '100x100^', 'extent', '100x100', 'Center', 'format', 'JPG'], done);
         });
       });
     });
