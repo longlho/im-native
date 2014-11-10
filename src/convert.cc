@@ -38,17 +38,12 @@ static std::string toString(Handle<Value> str) {
 
 class ConvertWorker : public NanAsyncWorker {
 public:
-  ConvertWorker(std::string src, Handle<Array> options, NanCallback *callback) : NanAsyncWorker(callback) {
-    Magick::InitializeMagick(NULL);
-    image.read(src);
+  ConvertWorker(std::string src, Handle<Array> options, NanCallback *callback) : NanAsyncWorker(callback), srcFilename(src) {
     this->Initialize(options);
   }
 
-  ConvertWorker(Handle<Value> src, Handle<Array> options, NanCallback *callback) : NanAsyncWorker(callback) {
-    Magick::InitializeMagick(NULL);
+  ConvertWorker(Handle<Value> src, Handle<Array> options, NanCallback *callback) : NanAsyncWorker(callback), srcBlob(node::Buffer::Data(src), node::Buffer::Length(src)) {
     // Create a Blob out of src buffer
-    Magick::Blob inputBlob(node::Buffer::Data(src), node::Buffer::Length(src));
-    image.read(inputBlob);
     this->Initialize(options);
   }
 
@@ -72,12 +67,21 @@ public:
     std::string method;
     std::string arg;
     Magick::GravityType gravity;
-    // Strip everything, reduce size
-    image.strip();
+    Magick::InitializeMagick(NULL);
 
-    // Interlace this sauce
-    image.interlaceType(Magick::InterlaceType::PlaneInterlace);
     try {
+      if (!srcFilename.empty()) {
+        image.read(srcFilename);
+      } else {
+        image.read(srcBlob);
+      }
+
+      // Strip everything, reduce size
+      image.strip();
+
+      // Interlace this sauce
+      image.interlaceType(Magick::InterlaceType::PlaneInterlace);
+
       for (unsigned int i = 0; i < opts_length; ++i) {
         method = opts[i];
         arg = opts[++i];
@@ -128,6 +132,8 @@ public:
     callback->Call(2, argv);
   }
 private:
+  std::string srcFilename;
+  Magick::Blob srcBlob;
   Magick::Image image;
   std::string *opts;
   unsigned int opts_length;

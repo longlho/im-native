@@ -3,7 +3,7 @@ var im = require('../index')
   , utils = require('./utils')
   , fs = require('fs');
 
-function convert (src, dest, args, done) {
+function convert (src, dest, args, done, expectErr) {
   var outFilename = __dirname + '/out/' + dest
     , srcFile = __dirname + '/fixtures/src/' + src
     , inputBuffer = fs.readFileSync(srcFile)
@@ -13,6 +13,10 @@ function convert (src, dest, args, done) {
 
   im.convert(inputBuffer, args, function (err, outBuffer) {
     if (err) {
+      if (expectErr) {
+        return done();
+      }
+
       console.log(err);
       return done(err);
     }
@@ -56,11 +60,14 @@ describe('convert', function () {
         });
       });
 
-      describe('w/o format', function () {
-        it('should be able to resize to 100x100 w/ aspect fill w/o format', function (done) {
-          convert('corgi-src.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
-        });
+      it('should be able to resize to 100x100 w/ aspect fill w/o format', function (done) {
+        convert('corgi-src.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done);
       });
+
+      it('should emit error if buffer is invalid', function (done) {
+        convert('bad.jpg', 'convert-buffer-fill-100.jpg', ['resize', '100x100^', 'extent', '100x100', 'CenterGravity'], done, true);
+      });
+
     });
 
     describe('resize', function () {
